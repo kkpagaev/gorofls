@@ -5,11 +5,25 @@
 package db
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Author struct {
-	ID   int64          `json:"id"`
-	Name string         `json:"name"`
-	Bio  sql.NullString `json:"bio"`
+	ID   int64       `json:"id"`
+	Name string      `json:"name"`
+	Bio  pgtype.Text `json:"bio"`
+}
+
+type Book struct {
+	ID          int32       `json:"id"`
+	Title       string      `json:"title"`
+	AuthorID    int64       `json:"author_id"`
+	Description pgtype.Text `json:"description"`
+}
+
+type User struct {
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	Emai     string `json:"emai"`
+	Password string `json:"password"`
 }

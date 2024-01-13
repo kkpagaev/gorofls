@@ -29,6 +29,10 @@ namespace :db do
   task :status do
     goose "status"
   end
+
+  task :down do
+    goose "down"
+  end
 end
 
 task :default => :run
