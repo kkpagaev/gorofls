@@ -4,7 +4,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListAuthors :many
 SELECT * FROM authors
-ORDER BY name;
+ORDER BY name
+LIMIT $1
+OFFSET $2;
 
 -- name: CreateAuthor :one
 INSERT INTO authors (

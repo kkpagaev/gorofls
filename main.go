@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
-	db "github.com/kkpagaev/gorofls/db/sqlc"
+	schema "github.com/kkpagaev/gorofls/db/sqlc"
+	"github.com/kkpagaev/gorofls/internal"
+	"github.com/kkpagaev/gorofls/web"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,25 +24,23 @@ func main() {
 	}
 	defer conn.Close(ctx)
 
-	q := db.New(conn)
-	books, err := q.ListBooks(ctx, db.ListBooksParams{
-		Limit:  10,
-		Offset: 0,
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(books)
-	// Echo instance
-	e := echo.New()
+	db := schema.New(conn)
+	// authors := internal.NewAuthors(db)
+	users := internal.NewUsers(db)
 
-	// Middleware
+	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	// Routes
 	e.POST("/", hello)
+	g := e.Group("/api")
+
+	web.BookGroup(g.Group("/books"))
+	web.UserGroup(g.Group("/users"), web.UserGroupDeps{
+		Users: users,
+	})
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

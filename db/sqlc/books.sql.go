@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: books.sql
 
-package db
+package schema
 
 import (
 	"context"

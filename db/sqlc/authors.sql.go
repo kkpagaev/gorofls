@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: authors.sql
 
-package db
+package schema
 
 import (
 	"context"
@@ -62,10 +62,17 @@ func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 const listAuthors = `-- name: ListAuthors :many
 SELECT id, name, bio FROM authors
 ORDER BY name
+LIMIT $1
+OFFSET $2
 `
 
-func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
-	rows, err := q.db.Query(ctx, listAuthors)
+type ListAuthorsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Author, error) {
+	rows, err := q.db.Query(ctx, listAuthors, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
