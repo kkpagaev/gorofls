@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	schema "github.com/kkpagaev/gorofls/db/sqlc"
 	"github.com/kkpagaev/gorofls/internal"
@@ -14,6 +15,17 @@ import (
 
 type User struct {
 	Id int `json:"id"`
+}
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		// Optionally, you could return the error to give each route more control over the status code
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
 }
 
 func main() {
@@ -29,6 +41,8 @@ func main() {
 	users := internal.NewUsers(db)
 
 	e := echo.New()
+
+	e.Validator = &CustomValidator{validator: validator.New()}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
