@@ -7,10 +7,10 @@ import (
 )
 
 type Users struct {
-	db *schema.Queries
+	db schema.Querier
 }
 
-func NewUsers(db *schema.Queries) *Users {
+func NewUsers(db schema.Querier) *Users {
 	return &Users{db: db}
 }
 

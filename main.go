@@ -13,9 +13,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type User struct {
-	Id int `json:"id"`
-}
 type CustomValidator struct {
 	validator *validator.Validate
 }
@@ -46,13 +43,14 @@ func main() {
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	// Routes
 	e.POST("/", hello)
 	g := e.Group("/api")
 
-	web.BookGroup(g.Group("/books"))
-	web.UserGroup(g.Group("/users"), web.UserGroupDeps{
+	web.RegisterBookGroup(g.Group("/books"), web.BookGroup{})
+	web.RegisterUserGroup(g.Group("/users"), web.UserGroup{
 		Users: users,
 	})
 

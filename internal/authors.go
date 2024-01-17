@@ -7,10 +7,10 @@ import (
 )
 
 type Authors struct {
-	db *schema.Queries
+	db schema.Querier
 }
 
-func NewAuthors(db *schema.Queries) *Authors {
+func NewAuthors(db schema.Querier) *Authors {
 	return &Authors{db: db}
 }
 

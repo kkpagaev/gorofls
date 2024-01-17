@@ -6,10 +6,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func BookGroup(e *echo.Group) {
+type BookGroup struct{}
+
+func RegisterBookGroup(e *echo.Group, d BookGroup) {
 	g := e.Group("/books")
 
-	g.GET("", func(c echo.Context) error {
-		return c.String(http.StatusOK, "hello users")
-	})
+	g.GET("", d.hello)
+}
+
+func (b BookGroup) hello(c echo.Context) error {
+	return c.String(http.StatusOK, "hello users")
 }

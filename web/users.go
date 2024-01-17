@@ -7,33 +7,27 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type (
-	UserGroupDeps struct {
-		Users *internal.Users
+type UserGroup struct {
+	Users *internal.Users
+}
+
+func RegisterUserGroup(g *echo.Group, d UserGroup) {
+	g.GET("", d.listUsers)
+}
+
+func (u UserGroup) listUsers(c echo.Context) error {
+	var query struct {
+		page  int32 `query:"page" validate:"required,min=1"`
+		limit int32 `query:"limit" validate:"required,min=1,max=100"`
 	}
-
-	UserListQuery struct {
-		Page  int32 `query:"page" validate:"required,min=1"`
-		Limit int32 `query:"limit" validate:"required,min=1,max=100"`
+	if err := ValidateRequest(c, &query); err != nil {
+		return err
 	}
-)
+	users, err := u.Users.ListUsers(c.Request().Context(), query.page, query.limit)
 
-func UserGroup(g *echo.Group, d UserGroupDeps) {
-	g.GET("", func(c echo.Context) error {
-		ctx := c.Request().Context()
-		var query UserListQuery
-		if err := c.Bind(&query); err != nil {
-			return err
-		}
-
-		if err := c.Validate(query); err != nil {
-			return err
-		}
-		users, err := d.Users.ListUsers(ctx, 1, 10)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, nil)
-		}
-
+	if err != nil {
+		return err
+	} else {
 		return c.JSON(http.StatusOK, users)
-	})
+	}
 }

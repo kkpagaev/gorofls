@@ -7,10 +7,10 @@ import (
 )
 
 type Books struct {
-	db *schema.Queries
+	db schema.Querier
 }
 
-func NewBooks(db *schema.Queries) *Books {
+func NewBooks(db schema.Querier) *Books {
 	return &Books{db: db}
 }
 
