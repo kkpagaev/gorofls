@@ -9,8 +9,34 @@ import (
 	"context"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users
+(name, password, email)
+VALUES
+($1, $2, $3)
+RETURNING id, name, email, password
+`
+
+type CreateUserParams struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Password, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, emai, password FROM users
+SELECT id, name, email, password FROM users
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -33,7 +59,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Emai,
+			&i.Email,
 			&i.Password,
 		); err != nil {
 			return nil, err
