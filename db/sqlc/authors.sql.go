@@ -17,7 +17,7 @@ INSERT INTO authors (
 ) VALUES (
   $1, $2
 )
-RETURNING id, name
+RETURNING id, name, bio
 `
 
 type CreateAuthorParams struct {
@@ -25,15 +25,10 @@ type CreateAuthorParams struct {
 	Bio  pgtype.Text `json:"bio"`
 }
 
-type CreateAuthorRow struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
-func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (CreateAuthorRow, error) {
+func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error) {
 	row := q.db.QueryRow(ctx, createAuthor, arg.Name, arg.Bio)
-	var i CreateAuthorRow
-	err := row.Scan(&i.ID, &i.Name)
+	var i Author
+	err := row.Scan(&i.ID, &i.Name, &i.Bio)
 	return i, err
 }
 
@@ -93,14 +88,14 @@ func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Aut
 
 const updateAuthor = `-- name: UpdateAuthor :exec
 UPDATE authors
-  set name = $2,
-  bio = $3
+  set name = COALESCE($2, name),
+  bio = COALESCE($3, bio)
 WHERE id = $1
 `
 
 type UpdateAuthorParams struct {
 	ID   int64       `json:"id"`
-	Name string      `json:"name"`
+	Name pgtype.Text `json:"name"`
 	Bio  pgtype.Text `json:"bio"`
 }
 

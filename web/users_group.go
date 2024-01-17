@@ -61,5 +61,5 @@ func (u UserGroup) createUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return ok(c, user)
 }

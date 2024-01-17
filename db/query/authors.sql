@@ -14,12 +14,12 @@ INSERT INTO authors (
 ) VALUES (
   $1, $2
 )
-RETURNING id, name;
+RETURNING *;
 
 -- name: UpdateAuthor :exec
 UPDATE authors
-  set name = $2,
-  bio = $3
+  set name = COALESCE(sqlc.narg(name), name),
+  bio = COALESCE(sqlc.narg(bio), bio)
 WHERE id = $1;
 
 -- name: DeleteAuthor :exec

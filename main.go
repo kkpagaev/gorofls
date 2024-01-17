@@ -38,7 +38,8 @@ func main() {
 	validator := &CustomValidator{validator: validator.New()}
 	e.Validator = validator
 	// authors := internal.NewAuthors(db)
-	users := internal.NewUsers(db, validator)
+	users := internal.NewUsers(db)
+	authors := internal.NewAuthors(db)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -48,6 +49,9 @@ func main() {
 	e.POST("/", hello)
 	g := e.Group("/api")
 
+	web.RegisterAuthorsGroup(g.Group("/authors"), web.AuthorsGroup{
+		Authors: authors,
+	})
 	web.RegisterBookGroup(g.Group("/books"), web.BookGroup{})
 	web.RegisterUserGroup(g.Group("/users"), web.UserGroup{
 		Users: users,
