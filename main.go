@@ -19,7 +19,6 @@ type CustomValidator struct {
 
 func (cv *CustomValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
-		// Optionally, you could return the error to give each route more control over the status code
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return nil
@@ -33,13 +32,13 @@ func main() {
 	}
 	defer conn.Close(ctx)
 
-	db := schema.New(conn)
-	// authors := internal.NewAuthors(db)
-	users := internal.NewUsers(db)
-
 	e := echo.New()
 
-	e.Validator = &CustomValidator{validator: validator.New()}
+	db := schema.New(conn)
+	validator := &CustomValidator{validator: validator.New()}
+	e.Validator = validator
+	// authors := internal.NewAuthors(db)
+	users := internal.NewUsers(db, validator)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

@@ -71,3 +71,26 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 	}
 	return items, nil
 }
+
+const userEmailExists = `-- name: UserEmailExists :one
+
+SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)
+`
+
+func (q *Queries) UserEmailExists(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, userEmailExists, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const userNameExists = `-- name: UserNameExists :one
+SELECT EXISTS (SELECT 1 FROM users WHERE name = $1)
+`
+
+func (q *Queries) UserNameExists(ctx context.Context, name string) (bool, error) {
+	row := q.db.QueryRow(ctx, userNameExists, name)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

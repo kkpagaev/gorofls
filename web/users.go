@@ -35,22 +35,31 @@ func (u UserGroup) listUsers(c echo.Context) error {
 
 func (u UserGroup) createUser(c echo.Context) error {
 	var body struct {
-		Email    string `json:"email" validate:"required,email"`
-		Name     string `json:"name" validate:"required"`
-		Password string `json:"password" validate:"required,min=6"`
+		Email    string `json:"email"`
+		Name     string `json:"name"`
+		Password string `json:"password"`
 	}
-	if err := ValidateRequest(c, &body); err != nil {
+	if err := c.Bind(&body); err != nil {
 		return err
 	}
-	user, err := u.Users.CreateUser(c.Request().Context(), internal.CreateUser{
+	createUser := internal.CreateUser{
 		Email:    body.Email,
 		Name:     body.Name,
 		Password: body.Password,
-	})
+	}
+	if err := c.Validate(&createUser); err != nil {
+		return err
+	}
+
+	user, err := u.Users.CreateUser(c.Request().Context(), createUser)
 
 	if err != nil {
+		if err == internal.UserEmailExists || err == internal.UserNameExists {
+			return conflict(c, err.Error())
+		}
+
 		return err
-	} else {
-		return c.JSON(http.StatusOK, user)
 	}
+
+	return c.JSON(http.StatusOK, user)
 }

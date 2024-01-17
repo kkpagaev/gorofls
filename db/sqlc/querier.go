@@ -21,6 +21,8 @@ type Querier interface {
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error
 	UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error)
+	UserEmailExists(ctx context.Context, email string) (bool, error)
+	UserNameExists(ctx context.Context, name string) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)
