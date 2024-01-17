@@ -23,9 +23,9 @@ WHERE id = $1;
 
 -- name: UpdateBook :one
 UPDATE books
-  SET title = $2,
-      author_id = $3,
-      description = $4
+  SET title = COALESCE(sqlc.narg(title), title),
+      author_id = COALESCE(sqlc.narg(author_id), author_id),
+      description = COALESCE(sqlc.narg(description), description)
 WHERE id = $1
 RETURNING *;
 

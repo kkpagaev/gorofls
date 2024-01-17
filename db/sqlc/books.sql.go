@@ -114,17 +114,17 @@ func (q *Queries) ListBooks(ctx context.Context, arg ListBooksParams) ([]ListBoo
 
 const updateBook = `-- name: UpdateBook :one
 UPDATE books
-  SET title = $2,
-      author_id = $3,
-      description = $4
+  SET title = COALESCE($2, title),
+      author_id = COALESCE($3, author_id),
+      description = COALESCE($4, description)
 WHERE id = $1
 RETURNING id, title, author_id, description
 `
 
 type UpdateBookParams struct {
 	ID          int32       `json:"id"`
-	Title       string      `json:"title"`
-	AuthorID    int64       `json:"author_id"`
+	Title       pgtype.Text `json:"title"`
+	AuthorID    pgtype.Int8 `json:"author_id"`
 	Description pgtype.Text `json:"description"`
 }
 

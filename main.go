@@ -40,6 +40,7 @@ func main() {
 	// authors := internal.NewAuthors(db)
 	users := internal.NewUsers(db)
 	authors := internal.NewAuthors(db)
+	books := internal.NewBooks(db)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -52,7 +53,9 @@ func main() {
 	web.RegisterAuthorsGroup(g.Group("/authors"), web.AuthorsGroup{
 		Authors: authors,
 	})
-	web.RegisterBookGroup(g.Group("/books"), web.BookGroup{})
+	web.RegisterBookGroup(g.Group("/books"), web.BookGroup{
+		Books: books,
+	})
 	web.RegisterUserGroup(g.Group("/users"), web.UserGroup{
 		Users: users,
 	})
